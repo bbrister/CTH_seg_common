@@ -1,6 +1,5 @@
 import csv
 import h5py
-import matplotlib.animation as animation
 import numpy as np
 import scipy.ndimage as nd
 from os import listdir, remove, mkdir
