@@ -4,7 +4,6 @@ import numpy as np
 import scipy.ndimage as nd
 from os import listdir, remove, mkdir
 from os.path import isfile, join, isdir
-from pylab import *
 import scipy.misc
 import tensorflow as tf
 import socket
