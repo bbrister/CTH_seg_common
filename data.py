@@ -60,7 +60,7 @@ def write_nii(path, data):
     Write a Nifti image with a generic header
     """
     import nibabel as nib
-	
+        
     nii = nib.Nifti1Image(data, np.eye(4))
     nib.save(nii, path)
 
@@ -90,7 +90,7 @@ def find_data_shape(dirname, ndim=3):
             raise ValueError(
                 "Image %s dimensions %d do not match ndim %d" % (
                     filepath, num_dims, ndim))
-		
+                
         return shape, num_channels
 
     raise ValueError("Something went wrong in finding out img dimensions")
@@ -148,7 +148,7 @@ def data_augment(data_iter, data_seg=None, rand_seed=None):
 
     By default, volumes in which all voxels have the same label are assigned
     zero weight. To disable this, set ignore_uniform=False.
-	
+        
 """
 def get_weight_map(labels, ignore_uniform=True):
 
@@ -158,10 +158,10 @@ def get_weight_map(labels, ignore_uniform=True):
     # Return if there's only one category present
     num_classes = len(uniq)
     if num_classes < 2:
-	if ignore_uniform:
-	    return np.zeros(labels.shape)
-	else:
-	    return np.ones(labels.shape)
+        if ignore_uniform:
+            return np.zeros(labels.shape)
+        else:
+            return np.ones(labels.shape)
 
     # Assign equal weight to each class, normalized to a total weight of one 
     # per voxel
@@ -171,7 +171,7 @@ def get_weight_map(labels, ignore_uniform=True):
     # Generate the weight map
     weight_map = np.zeros(labels.shape)
     for k in range(len(uniq)):
-	weight_map[labels == uniq[k]] = weights[k]
+        weight_map[labels == uniq[k]] = weights[k]
 
     return weight_map
 
