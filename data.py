@@ -2,6 +2,7 @@ import csv
 import h5py
 import numpy as np
 import scipy.ndimage as nd
+import os
 from os import listdir, remove, mkdir
 from os.path import isfile, join, isdir
 import scipy.misc
@@ -71,13 +72,11 @@ def find_data_shape(dirname, ndim=3):
     dirname - (string) path of data
     """
     statement = ''
-    filenames = listdir(dirname)
     shape = None
     num_channels = 0
     # Trying to look at each image file.
-    for filename in filenames:
-        filepath = join(dirname, filename)
-        if filename[-3:] != '.h5':
+    for filepath in read_dir_files(dirname):
+        if filepath[-3:] != '.h5':
             continue
         shape = read_data_shape(filepath)
         num_dims = len(shape)
@@ -95,11 +94,20 @@ def find_data_shape(dirname, ndim=3):
 
     raise ValueError("Something went wrong in finding out img dimensions")
 
+def read_dir_files(path):
+    """
+    Read the files in a directory and resolve symlinks. Used for test/train dirs
+    """
+    return [os.path.realpath( # Follow symlinks
+        os.path.join(path, x)
+    ) for x in listdir(path)]
+
+
 def read_data_shape(path):
     """
     Reads an hdf5 file and returns the shape of the 'data' array.
     """
-    with h5py.File(path) as hf:
+    with h5py.File(path, 'r') as hf:
         return hf.get('data').shape
 
 def data_augment(data_iter, data_seg=None, rand_seed=None):
