@@ -10,6 +10,7 @@ import tensorflow as tf
 import socket
 import sys
 import time
+from pyCudaImageWarp import augment3d
 
 def aaFilter(im, factors, slope=1.0 / 3):
     """
@@ -188,3 +189,23 @@ def get_weight_map(labels, ignore_uniform=True):
 def apply_mask(vol, mask):
     vol[~mask] = -float('inf')
     return vol
+
+def augment_segmentations(segList, api="cuda", device=None):
+    """
+        Apply small distortions to the list of segmentations, returned as a list of binary masks
+    """
+    segXforms = [augment3d.get_xform(
+        seg, 
+        rotMax=(2,) * 3,
+        shearMax=(1 + 0.05,) * 3,
+        transMax=(5,) * 3,
+        otherScale=0.01,
+        shape=seg.shape
+    ) for seg in segList]
+    return augment3d.apply_xforms(
+        segXforms, 
+        labelsList=[seg > 0 for seg in segList], # Don't want 'ignore' factoring in
+        oob_label=0,
+        api=api,
+        device=device
+    )[0] # FIXME Returns a tuple
