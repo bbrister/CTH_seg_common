@@ -101,7 +101,7 @@ def read_dir_files(path):
     """
     return [os.path.realpath( # Follow symlinks
         os.path.join(path, x)
-    ) for x in listdir(path)]
+    ) for x in listdir(path) if not x.startswith('.')]
 
 
 def read_data_shape(path):
