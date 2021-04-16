@@ -111,45 +111,6 @@ def read_data_shape(path):
     with h5py.File(path, 'r') as hf:
         return hf.get('data').shape
 
-def data_augment(data_iter, data_seg=None, rand_seed=None):
-    """
-    Stochastically augments the single piece of data.
-    INPUT:
-    - data_iter: (3d ND-array) the single piece of data
-    - data_seg: (2d ND-array) the corresponding segmentation
-    """
-    matrix_size = data_iter.shape[0]
-    # Setting Seed
-    if rand_seed is not None:
-        np.random.seed(rand_seed)
-    # Creating Random variables
-    roller = np.round(float(matrix_size/7))
-    ox, oy = np.random.randint(-roller, roller+1, 2)
-    do_flip = np.random.randn() > 0
-    num_rot = np.random.choice(4)
-    pow_rand = np.clip(0.05*np.random.randn(), -.2, .2) + 1.0
-    add_rand = np.clip(np.random.randn() * 0.1, -.4, .4)
-    # Rolling
-    data_iter = np.roll(np.roll(data_iter, ox, 0), oy, 1)
-    if np.any(data_seg):
-        data_seg = np.roll(np.roll(data_seg, ox, 0), oy, 1)
-    # Left-right Flipping
-    if do_flip:
-        data_iter = np.fliplr(data_iter)
-        if np.any(data_seg):
-            data_seg = np.fliplr(data_seg)
-    # Random 90 Degree Rotation
-    data_iter = np.rot90(data_iter, num_rot)
-    if np.any(data_seg):
-        data_seg = np.rot90(data_seg, num_rot)
-    # Raising/Lowering to a power
-    #data_iter = data_iter ** pow_rand
-    # Random adding of shade.
-    data_iter += add_rand
-    if np.any(data_seg):
-        return data_iter, data_seg
-    return data_iter
-
 """
     Computes the weighting map, to be used with get_softmax_loss(). This ensures
     that class 0 is balanced in weight with the positive classes. Negative
