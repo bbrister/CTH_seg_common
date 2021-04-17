@@ -76,24 +76,44 @@ def find_data_shape(dirname, ndim=3):
     shape = None
     num_channels = 0
     # Trying to look at each image file.
-    for filepath in read_dir_files(dirname):
-        if filepath[-3:] != '.h5':
-            continue
-        shape = read_data_shape(filepath)
-        num_dims = len(shape)
-        assert(num_dims >= ndim and num_dims <= ndim + 1)
-        if num_dims == ndim:
-            num_channels = 1
-        elif num_dims == ndim + 1:
-            num_channels = shape[ndim]
-        else:
-            raise ValueError(
-                "Image %s dimensions %d do not match ndim %d" % (
-                    filepath, num_dims, ndim))
-                
-        return shape, num_channels
+    for root, dirs, files in os.walk(dirname):
+        for basename in files:
+            filepath = os.path.join(root, basename)
+            if filepath[-3:] != '.h5':
+                continue
+            shape = read_data_shape(filepath)
+            num_dims = len(shape)
+            assert(num_dims >= ndim and num_dims <= ndim + 1)
+            if num_dims == ndim:
+                num_channels = 1
+            elif num_dims == ndim + 1:
+                num_channels = shape[ndim]
+            else:
+                raise ValueError(
+                    "Image %s dimensions %d do not match ndim %d" % (
+                        filepath, num_dims, ndim))
+                    
+            return shape, num_channels
 
-    raise ValueError("Something went wrong in finding out img dimensions")
+    raise ValueError("Failed to read image dimensions")
+
+def read_train_data(path):
+    """
+    Reads the training data. Returns a list of lists, one for each subdirectory.
+    """
+
+    # Get the subdirectories
+    dirFiles = []
+    for root, dirs, files in os.walk(path):
+        for thisDir in dirs:
+            dirFiles.append(
+                read_dir_files(
+                        os.path.join(root, thisDir)
+                )
+            )
+
+    return dirFiles
+        
 
 def read_dir_files(path):
     """
