@@ -79,7 +79,7 @@ def find_data_shape(dirname, ndim=3):
     for root, dirs, files in os.walk(dirname):
         for basename in files:
             filepath = os.path.join(root, basename)
-            if filepath[-3:] != '.h5':
+            if filepath[-3:] != '.h5' or basename.startswith('.'):
                 continue
             shape = read_data_shape(filepath)
             num_dims = len(shape)
@@ -102,8 +102,8 @@ def read_train_data(path):
     Reads the training data. Returns a list of lists, one for each subdirectory.
     """
 
-    # Get the subdirectories
-    dirFiles = []
+    # Get the files in the subdirectories, including path itself
+    dirFiles = read_dir_files(path)
     for root, dirs, files in os.walk(path):
         for thisDir in dirs:
             dirFiles.append(
@@ -119,9 +119,12 @@ def read_dir_files(path):
     """
     Read the files in a directory and resolve symlinks. Used for test/train dirs
     """
-    return [os.path.realpath( # Follow symlinks
+    dirFiles = [os.path.realpath( # Follow symlinks
         os.path.join(path, x)
     ) for x in listdir(path) if not x.startswith('.')]
+
+    return [x for x in dirFiles if os.path.isfile(x)]
+        
 
 
 def read_data_shape(path):
